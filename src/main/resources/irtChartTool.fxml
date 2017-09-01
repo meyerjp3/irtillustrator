@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.itemanalysis.irt.charttool.Controller">
+   <children>
+      <MenuBar>
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Open item parameter file..." />
+                  <MenuItem mnemonicParsing="false" text="Open item response file..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Save chart..." />
+                  <MenuItem mnemonicParsing="false" text="Save all charts..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Exit" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Preferences..." />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <GridPane VBox.vgrow="ALWAYS">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <LineChart fx:id="defaultLineChart" horizontalZeroLineVisible="false" title="IRT Chart" verticalZeroLineVisible="false" GridPane.columnIndex="2" GridPane.columnSpan="5" GridPane.rowSpan="4">
+              <xAxis>
+                <NumberAxis fx:id="defaultXAxis" label="Theta" lowerBound="-4.5" side="BOTTOM" upperBound="4.5" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis fx:id="defaultYAxis" label="Probability" side="LEFT" upperBound="1.0" />
+              </yAxis>
+               <GridPane.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </GridPane.margin>
+            </LineChart>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowSpan="7">
+               <children>
+                  <ChoiceBox fx:id="modelChoiceBox" prefWidth="150.0">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </ChoiceBox>
+                  <TextField fx:id="discriminationTextField" maxWidth="150.0" prefWidth="150.0" promptText="Discrimination">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField fx:id="difficultyTextField" maxWidth="150.0" prefWidth="150.0" promptText="Difficulty">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField fx:id="guessingTextField" maxWidth="150.0" prefWidth="150.0" promptText="Guessing">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TextField fx:id="slippingTextField" maxWidth="150.0" prefWidth="150.0" promptText="Slipping">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <TableView fx:id="stepParameterTableView" maxWidth="150.0" prefHeight="175.0" prefWidth="150.0">
+                    <columns>
+                      <TableColumn prefWidth="150.0" text="Step" />
+                    </columns>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </TableView>
+                  <CheckBox fx:id="iccCheckBox" mnemonicParsing="false" selected="true" text="Item characteristic curve">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="itemInfoCheckBox" mnemonicParsing="false" text="Item information">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="stdErrorItemCheckBox" layoutX="15.0" layoutY="495.0" mnemonicParsing="false" text="Standard error (Item)">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="tccCheckBox" mnemonicParsing="false" onAction="#handleTccSelected" text="Test characteristic curve">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="testInfoCheckBox" mnemonicParsing="false" onAction="#handleTestInfoSelected" text="Test information">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="stdErrorTextCheckBox" mnemonicParsing="false" onAction="#handleStdErrorTest" text="Stand error (Test)">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="observedPropCheckBox" mnemonicParsing="false" text="Observed proportions">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <HBox>
+                     <children>
+                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAddItem" text="Add">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="clearButton" mnemonicParsing="false" onAction="#handleClearChart" text="Clear">
+                           <HBox.margin>
+                              <Insets bottom="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <GridPane.margin>
+                  <Insets top="10.0" />
+               </GridPane.margin>
+            </VBox>
+            <VBox prefWidth="100.0" GridPane.columnIndex="2" GridPane.columnSpan="5" GridPane.rowIndex="4" GridPane.rowSpan="3">
+               <children>
+                  <TextField fx:id="titleTextField" promptText="Chart title">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <HBox>
+                     <children>
+                        <TextField prefWidth="250.0" promptText="X-axis label" text="Theta" fx:id="xlabelTextFeild">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <TextField promptText="X-axis minimum" text="-6.0" fx:id="xminTextField">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="20.0" right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <TextField promptText="X-axis maximum" text="6.0" fx:id="xmaxTextField">
+                           <HBox.margin>
+                              <Insets bottom="5.0" right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="10.0" layoutY="45.0">
+                     <children>
+                        <TextField fx:id="ylabelTextField" prefWidth="250.0" promptText="Y-axis label" text="Probability">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <TextField fx:id="yminTextFeild" promptText="Y-axis minimum" text="0">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="20.0" right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <TextField fx:id="ymaxTextField" promptText="Y-axis maximum" text="1">
+                           <HBox.margin>
+                              <Insets bottom="5.0" right="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#handleChartUpdate" text="Update">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Pane HBox.hgrow="ALWAYS" />
+                        <Button fx:id="previousButton" mnemonicParsing="false" text="Previous">
+                           <HBox.margin>
+                              <Insets bottom="5.0" right="5.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="nextButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Next">
+                           <HBox.margin>
+                              <Insets bottom="5.0" right="5.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+               <GridPane.margin>
+                  <Insets bottom="5.0" left="55.0" right="5.0" top="5.0" />
+               </GridPane.margin>
+            </VBox>
+         </children>
+      </GridPane>
+      <HBox alignment="BOTTOM_LEFT">
+         <children>
+            <Label prefWidth="450.0" text="Ready" />
+            <Pane HBox.hgrow="ALWAYS" />
+            <ProgressBar prefWidth="200.0" progress="0.0" />
+         </children>
+         <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" />
+         </VBox.margin>
+      </HBox>
+   </children>
+</VBox>
