@@ -1,11 +1,13 @@
-package com.itemanalysis.irt.charttool;
+package com.itemanalysis.irtillustrator;
 
 import com.itemanalysis.psychometrics.distribution.UniformDistributionApproximation;
 import com.itemanalysis.psychometrics.irt.model.Irm3PL;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -13,7 +15,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.WritableImage;
+import javafx.stage.FileChooser;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -54,13 +63,13 @@ public class Controller implements Initializable{
     private CheckBox stdErrorTextCheckBox;
 
     @FXML
-    private CheckBox observedPropCheckBox;
+    private CheckBox showLegendCheckBox;
 
     @FXML
     private TextField titleTextField;
 
     @FXML
-    private TextField xlabelTextFeild;
+    private TextField xlabelTextField;
 
     @FXML
     private TextField xminTextField;
@@ -69,7 +78,7 @@ public class Controller implements Initializable{
     private TextField xmaxTextField;
 
     @FXML
-    private TextField ylabelTextFeild;
+    private TextField ylabelTextField;
 
     @FXML
     private TextField yminTextField;
@@ -109,7 +118,7 @@ public class Controller implements Initializable{
 
     private boolean isAnimated = false;
 
-    UniformDistributionApproximation dist = new UniformDistributionApproximation(-5, 5, 250);
+    UniformDistributionApproximation dist = new UniformDistributionApproximation(-7, 7, 300);
 
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         modelChoiceBox.getItems().clear();
@@ -126,16 +135,40 @@ public class Controller implements Initializable{
         }
 
         defaultLineChart.setAnimated(isAnimated);
+        defaultLineChart.setTitle("");
 
+        double xLower = Double.parseDouble(xminTextField.getText().trim());
+        double xUpper = Double.parseDouble(xmaxTextField.getText().trim());
+
+        defaultXAxis.setAutoRanging(false);
+        defaultXAxis.setLowerBound(xLower);
+        defaultXAxis.setUpperBound(xUpper);
+        defaultXAxis.setTickUnit(1);
+
+//        double yLower = Double.parseDouble(yminTextField.getText().trim());
+        double yUpper = Double.parseDouble(ymaxTextField.getText().trim());
         defaultYAxis.setAutoRanging(false);
-        defaultYAxis.setLowerBound(0.0);
-        defaultYAxis.setUpperBound(1.0);
-        defaultYAxis.setTickUnit(0.2);
+//        defaultYAxis.setLowerBound(yLower);
+        defaultYAxis.setUpperBound(yUpper);
+        defaultYAxis.setTickUnit(0.1);
 
     }
 
+    @FXML
     public void handleChartUpdate(){
         defaultLineChart.setTitle(titleTextField.getText().trim());
+        defaultXAxis.setLabel(xlabelTextField.getText().trim());
+        defaultYAxis.setLabel(ylabelTextField.getText().trim());
+
+        defaultXAxis.setAutoRanging(false);
+        defaultXAxis.setForceZeroInRange(false);
+        defaultXAxis.setLowerBound(Double.parseDouble(xminTextField.getText().trim()));
+        defaultXAxis.setUpperBound(Double.parseDouble(xmaxTextField.getText().trim()));
+
+        defaultYAxis.setAutoRanging(false);
+        defaultYAxis.setForceZeroInRange(false);
+        defaultYAxis.setLowerBound(Double.parseDouble(yminTextField.getText().trim()));
+        defaultYAxis.setUpperBound(Double.parseDouble(ymaxTextField.getText().trim()));
     }
 
     @FXML
@@ -157,6 +190,21 @@ public class Controller implements Initializable{
         }
 
         defaultLineChart.setCreateSymbols(false);
+
+        defaultLineChart.setTitle("");
+        defaultXAxis.setLabel("Theta");
+        defaultYAxis.setLabel("Probability");
+
+        defaultXAxis.setLowerBound(-6);
+        defaultXAxis.setUpperBound(6);
+        defaultYAxis.setLowerBound(0);
+        defaultYAxis.setUpperBound(1);
+
+        xminTextField.setText("-6.0");
+        xmaxTextField.setText("6.0");
+        yminTextField.setText("0");
+        ymaxTextField.setText("1");
+
     }
 
     @FXML
@@ -279,5 +327,64 @@ public class Controller implements Initializable{
         }
     }
 
+    @FXML
+    private void handleShowHideLegend(){
+        if(showLegendCheckBox.isSelected()){
+            defaultLineChart.setLegendVisible(true);
+        }else{
+            defaultLineChart.setLegendVisible(false);
+        }
+    }
+
+    @FXML
+    private void handleSaveChartAsPNG(){
+        WritableImage image = defaultLineChart.snapshot(new SnapshotParameters(), null);
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PNG", "*.png"),
+                new FileChooser.ExtensionFilter("JPG", "*.jpg")
+        );
+
+        File file = fileChooser.showSaveDialog(defaultLineChart.getScene().getWindow());
+
+        //Save file as PNG if file type is not specified
+        if(null!=file){
+            String fileName = file.getAbsolutePath();
+            if(!fileName.toLowerCase().endsWith(".png") && !fileName.toLowerCase().endsWith(".jpg")){
+                file = new File(file.getAbsolutePath() + ".png");
+            }
+
+            fileName = file.getAbsolutePath();
+            String suffix = fileName.substring(fileName.lastIndexOf(".")+1, fileName.length()).trim().toLowerCase();
+            if(!suffix.equals("png") && !suffix.equals("jpg")){
+                suffix = "png";
+            }
+
+            try{
+
+                if(suffix.equals("jpg")){
+                    BufferedImage image2 = SwingFXUtils.fromFXImage(image, null);
+                    // Remove alpha-channel from buffered image: To prevent rendering in pink tones (bug in Javafx)
+                    BufferedImage imageRGB = new BufferedImage(image2.getWidth(), image2.getHeight(), BufferedImage.OPAQUE);
+                    Graphics2D graphics = imageRGB.createGraphics();
+                    graphics.drawImage(image2, 0, 0, null);
+                    ImageIO.write(imageRGB, suffix, file);
+                    graphics.dispose();
+                }else{
+                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), suffix, file);
+                }
+
+
+            }catch(IOException ex){
+                ex.printStackTrace();
+            }
+
+        }
+
+
+
+    }
 
 }

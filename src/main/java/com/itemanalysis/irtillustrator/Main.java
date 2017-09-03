@@ -1,4 +1,4 @@
-package com.itemanalysis.irt.charttool;
+package com.itemanalysis.irtillustrator;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -10,8 +10,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("irtChartTool.fxml"));
-        primaryStage.setTitle("IRT Chart Tool");
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("irtIllustrator.fxml"));
+        primaryStage.setTitle("IRT Illustrator");
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.show();
     }
