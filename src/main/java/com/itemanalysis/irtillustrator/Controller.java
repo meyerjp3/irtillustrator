@@ -1,8 +1,7 @@
 package com.itemanalysis.irtillustrator;
 
 import com.itemanalysis.psychometrics.distribution.UniformDistributionApproximation;
-import com.itemanalysis.psychometrics.irt.model.Irm3PL;
-import com.itemanalysis.psychometrics.irt.model.Irm4PL;
+import com.itemanalysis.psychometrics.irt.model.*;
 import com.sun.org.apache.xerces.internal.impl.xpath.XPath;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -34,6 +33,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 
@@ -150,6 +150,8 @@ public class Controller implements Initializable{
     private String[] models = {"Binary Model", "PCM", "GPCM", "GRM"};
 
     private String selectedModel = models[0];
+
+    private final String VERSION = "2017.1";
 
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         modelChoiceBox.getItems().clear();
@@ -334,7 +336,6 @@ public class Controller implements Initializable{
             data.add(new StepParameter(value));
             addStepParameterTextField.clear();
         }
-
     }
 
     @FXML
@@ -343,29 +344,72 @@ public class Controller implements Initializable{
         stepParameterTableView.setItems(data);
     }
 
+    private int checkDiscriminationValue(double value){
+        if(value<=0){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Parameter Value");
+            alert.setHeaderText(null);
+            alert.setContentText("The discrimination parameter must be larger than zero.");
+            alert.showAndWait();
+            return 1;
+        }
+        return 0;
+    }
+
+    private int checkGuessingValue(double value){
+        if(value<0 || value > 1){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Parameter Value");
+            alert.setHeaderText(null);
+            alert.setContentText("The guessing parameter must be between 0 and 1.");
+            alert.showAndWait();
+            return 1;
+        }
+        return 0;
+    }
+
+    private int checkSlippingValue(double value, double guessing){
+        if(value <= guessing || value > 1){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Parameter Value");
+            alert.setHeaderText(null);
+            alert.setContentText("The slipping parameter must be between the guessing parameter and 1.");
+            alert.showAndWait();
+            return 1;
+        }
+        return 0;
+    }
+
+    private int checkThresholdParameters(double[] steps){
+        double sum = 0;
+        for(int i=0;i<steps.length;i++){
+            sum += steps[i];
+        }
+
+        if(sum!=0){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Parameter Value");
+            alert.setHeaderText(null);
+            alert.setContentText("The threshold (step) parameters must sum to zero in the partial credit model.");
+            alert.showAndWait();
+            return 1;
+        }
+        return 0;
+    }
+
     @FXML
     private void handleAddItem(){
-
-
-        boolean validInput = true;
-
+        int invalidCount = 0;
         double a = 1;
         double b = 0;
         double c = 0;
         double u = 1;
+        double[] steps = null;
 
         String aText = discriminationTextField.getText().trim();
         if(!"".equals(aText)){
             a = Double.parseDouble(aText);
-
-            if(a<=0){
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Parameter Value");
-                alert.setHeaderText(null);
-                alert.setContentText("The discrimination parameter must be larger than zero.");
-                alert.showAndWait();
-                validInput = false;
-            }
+            invalidCount += checkDiscriminationValue(a);
         }
 
         String bText = difficultyTextField.getText().trim();
@@ -374,70 +418,177 @@ public class Controller implements Initializable{
         String cText = guessingTextField.getText().trim();
         if(!"".equals(cText)){
             c = Double.parseDouble(cText);
-
-            if(c<0 || c > 1){
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Parameter Value");
-                alert.setHeaderText(null);
-                alert.setContentText("The guessing parameter must be between 0 and 1.");
-                alert.showAndWait();
-                validInput = false;
-            }
+            invalidCount += checkGuessingValue(c);
         }
 
         String uText = slippingTextField.getText().trim();
         if(!"".equals(uText)){
             u = Double.parseDouble(uText);
+            invalidCount += checkSlippingValue(u, c);
+        }
 
-            if(u<=c || u > 1){
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Parameter Value");
-                alert.setHeaderText(null);
-                alert.setContentText("The slipping parameter must be between the guessing parameter and 1.");
-                alert.showAndWait();
-                validInput = false;
+        //Get Step parameters
+        if(!models[0].equals(selectedModel)){
+            int size = stepParameterTableView.getItems().size();
+            steps = new double[size];
+            for(int i=0;i<size;i++){
+                steps[i] = stepParameterTableView.getItems().get(i).getStepValue();
             }
         }
 
-        if(validInput){
-            Irm4PL model = new Irm4PL(a, b, c, u, 1.0);
-//            Irm3PL model = new Irm3PL(a, b, c, 1.0);
+        //check constraints on partial credit model - steps must sum to zero
+        if(models[1].equals(selectedModel)){
+            checkThresholdParameters(steps);
+        }
 
+        if(invalidCount == 0){
 
             int count = defaultLineChart.getData().size();
-            XYChart.Series series = new XYChart.Series();
-            series.setName("Item " + (count+1));
+            ArrayList<XYChart.Series> allSeries = new ArrayList<XYChart.Series>();
+            XYChart.Series series = null;
+            ItemResponseModel model = null;
 
-            for(int i=0;i<dist.getNumberOfPoints();i++){
-                series.getData().add(new XYChart.Data(dist.getPointAt(i), model.probability(dist.getPointAt(i), 1)));
+
+            if(models[1].equals(selectedModel)){
+                //partial credit model
+
+                //create the model
+                model = new IrmPCM(b, steps, 1.0);
+
+                //add all series
+                for(int k=0;k<model.getNcat();k++){
+                    series = new XYChart.Series();
+                    series.setName("cat"+k);
+                    allSeries.add(series);
+                }
+
+                //compute probabilities
+                for(int i=0;i<dist.getNumberOfPoints();i++){
+                    for(int k=0;k<model.getNcat();k++){
+                        allSeries.get(k).getData().add(
+                                new XYChart.Data(dist.getPointAt(i),
+                                model.probability(dist.getPointAt(i), k)));
+                    }
+                }
+
+                for(int k=0;k<model.getNcat();k++){
+                    defaultLineChart.getData().add(allSeries.get(k));
+
+                }
+
+
+            }else if(models[2].equals(selectedModel)){
+                //generalized partial credit model
+
+                //First step should be zero
+                double[] steps2 = new double[steps.length+1];
+                steps2[0] = 0;
+                for(int i=0;i<steps.length;i++){
+                    steps2[i+1]=steps[i];
+                }
+
+                //create the model
+                model = new IrmGPCM(a, steps2, 1.0);
+
+                //add all series
+                for(int k=0;k<model.getNcat();k++){
+                    series = new XYChart.Series();
+                    series.setName("cat"+k);
+                    allSeries.add(series);
+                }
+
+                //compute probabilities
+                for(int i=0;i<dist.getNumberOfPoints();i++){
+                    for(int k=0;k<model.getNcat();k++){
+                        allSeries.get(k).getData().add(
+                                new XYChart.Data(dist.getPointAt(i),
+                                        model.probability(dist.getPointAt(i), k)));
+                    }
+                }
+
+                for(int k=0;k<model.getNcat();k++){
+                    defaultLineChart.getData().add(allSeries.get(k));
+
+                }
+
+            }else if(models[3].equals(selectedModel)){
+                //Graded response model
+
+                //create the model
+                model = new IrmGRM(a, steps, 1.0);
+
+                //add all series
+                for(int k=0;k<model.getNcat();k++){
+                    series = new XYChart.Series();
+                    series.setName("cat"+k);
+                    allSeries.add(series);
+                }
+
+                //compute probabilities
+                for(int i=0;i<dist.getNumberOfPoints();i++){
+                    for(int k=0;k<model.getNcat();k++){
+                        allSeries.get(k).getData().add(
+                                new XYChart.Data(dist.getPointAt(i),
+                                        model.probability(dist.getPointAt(i), k)));
+                    }
+                }
+
+                for(int k=0;k<model.getNcat();k++){
+                    defaultLineChart.getData().add(allSeries.get(k));
+
+                }
+
+
+
+            }else{
+                //binary item model
+
+                model = new Irm4PL(a, b, c, u, 1.0);
+//            model = new Irm3PL(a, b, c, 1.0);
+
+                series = new XYChart.Series();
+                series.setName("Item " + (count+1));
+
+                for(int i=0;i<dist.getNumberOfPoints();i++){
+                    series.getData().add(new XYChart.Data(dist.getPointAt(i), model.probability(dist.getPointAt(i), 1)));
+                }
+
+                defaultLineChart.getData().add(series);
+
+                ObservableList<XYChart.Data<Number,Number>> newData = series.getData();
+                ObservableList<XYChart.Data<Number,Number>> tccData = tccSeries.getData();
+                ObservableList<XYChart.Data<Number,Number>> tInfoData = testInfoSeries.getData();
+                ObservableList<XYChart.Data<Number,Number>> stdErrorTestData = testStdErrorSeries.getData();
+
+                Number tccValue = 0;
+                Number testInfoValue = 0;
+                Number seTestValue = 0;
+                for(int i=0;i<newData.size();i++){
+                    tccValue = tccData.get(i).getYValue().doubleValue() + newData.get(i).getYValue().doubleValue();
+                    tccData.get(i).setYValue(tccValue);
+
+                    testInfoValue = tInfoData.get(i).getYValue().doubleValue() + model.itemInformationAt(dist.getPointAt(i));
+                    tInfoData.get(i).setYValue(testInfoValue);
+
+                    seTestValue = 1.0/Math.sqrt(testInfoValue.doubleValue());
+                    stdErrorTestData.get(i).setYValue(seTestValue);
+                }
+
             }
 
-            ObservableList<XYChart.Data<Number,Number>> newData = series.getData();
-            ObservableList<XYChart.Data<Number,Number>> tccData = tccSeries.getData();
-            ObservableList<XYChart.Data<Number,Number>> tInfoData = testInfoSeries.getData();
-            ObservableList<XYChart.Data<Number,Number>> stdErrorTestData = testStdErrorSeries.getData();
-
-            Number tccValue = 0;
-            Number testInfoValue = 0;
-            Number seTestValue = 0;
-            for(int i=0;i<newData.size();i++){
-                tccValue = tccData.get(i).getYValue().doubleValue() + newData.get(i).getYValue().doubleValue();
-                tccData.get(i).setYValue(tccValue);
-
-                testInfoValue = tInfoData.get(i).getYValue().doubleValue() + model.itemInformationAt(dist.getPointAt(i));
-                tInfoData.get(i).setYValue(testInfoValue);
-
-                seTestValue = 1.0/Math.sqrt(testInfoValue.doubleValue());
-                stdErrorTestData.get(i).setYValue(seTestValue);
-            }
-
-            defaultLineChart.getData().add(series);
             defaultLineChart.setCreateSymbols(false);
 
+
+
+            //Reset text fields
             discriminationTextField.clear();
             difficultyTextField.clear();
             guessingTextField.clear();
             slippingTextField.clear();
+            data = FXCollections.observableArrayList();
+            stepParameterTableView.setItems(data);
+
+
         }
 
     }
@@ -554,6 +705,22 @@ public class Controller implements Initializable{
             }
 
         }
+    }
+
+    @FXML
+    private void handleAboutMenuSelection(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText("About IRT Illustrator");
+
+        String aboutText = "IRT Illustrator version " + VERSION + "\n" +
+                "Copyright (c) 2017 J. Patrick Meyer.\n" +
+                "All rights reserved.\n" +
+                "www.ItemAnalysis.com";
+
+        alert.setContentText(aboutText);
+        alert.show();
+
     }
 
 }
