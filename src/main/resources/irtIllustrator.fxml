@@ -80,13 +80,8 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </GridPane.margin>
             </LineChart>
-            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowSpan="7">
+            <VBox prefWidth="150.0" GridPane.columnSpan="2" GridPane.rowSpan="7">
                <children>
-                  <ChoiceBox fx:id="modelChoiceBox" prefWidth="150.0">
-                     <VBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </VBox.margin>
-                  </ChoiceBox>
                   <TextField fx:id="discriminationTextField" maxWidth="150.0" prefWidth="150.0" promptText="Discrimination">
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" />
@@ -107,14 +102,39 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" />
                      </VBox.margin>
                   </TextField>
-                  <TableView fx:id="stepParameterTableView" maxWidth="150.0" prefHeight="175.0" prefWidth="150.0">
+                  <ChoiceBox fx:id="modelChoiceBox" prefWidth="150.0">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </ChoiceBox>
+                  <TableView fx:id="stepParameterTableView" maxWidth="150.0" prefHeight="600.0" prefWidth="150.0">
                     <columns>
-                      <TableColumn prefWidth="150.0" text="Step" />
+                      <TableColumn fx:id="stepTableColumn" prefWidth="150.0" text="Step Parameters" />
                     </columns>
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" />
                      </VBox.margin>
                   </TableView>
+                  <HBox prefHeight="25.0" prefWidth="150.0">
+                     <children>
+                        <TextField fx:id="addStepParameterTextField" prefHeight="25.0" prefWidth="50.0" promptText="Step">
+                           <HBox.margin>
+                              <Insets bottom="5.0" top="5.0" />
+                           </HBox.margin></TextField>
+                        <Button fx:id="stepAddButton" mnemonicParsing="false" onAction="#handleAddStep" text="Add">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" top="5.0" />
+                           </HBox.margin></Button>
+                        <Button fx:id="stepClearButton" mnemonicParsing="false" onAction="#handleClearStep" text="Clear">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" top="5.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </HBox>
                   <CheckBox fx:id="iccCheckBox" mnemonicParsing="false" selected="true" text="Item characteristic curve">
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" />
@@ -150,7 +170,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" />
                      </VBox.margin>
                   </CheckBox>
-                  <HBox>
+                  <HBox prefHeight="35.0" prefWidth="150.0">
                      <children>
                         <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAddItem" text="Add">
                            <HBox.margin>
@@ -217,7 +237,7 @@
                         </TextField>
                      </children>
                   </HBox>
-                  <HBox prefHeight="100.0" prefWidth="200.0">
+                  <HBox prefWidth="200.0">
                      <children>
                         <Pane HBox.hgrow="ALWAYS" />
                         <Button mnemonicParsing="false" onAction="#handleChartUpdate" text="Update">
