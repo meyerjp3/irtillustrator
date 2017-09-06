@@ -151,6 +151,17 @@ public class Controller implements Initializable{
 
     private String selectedModel = models[0];
 
+    private double[] tcc = null;
+
+    private double[] tinfo = null;
+
+    private int itemCount = 0;
+
+    private ArrayList<XYChart.Series> allItemSeries = new ArrayList<XYChart.Series>();
+
+    private ArrayList<XYChart.Series> allItemInfoSeries = new ArrayList<XYChart.Series>();
+    private ArrayList<XYChart.Series> allItemStdErrorSeries = new ArrayList<XYChart.Series>();
+
     private final String VERSION = "2017.1";
 
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -250,6 +261,8 @@ public class Controller implements Initializable{
         );
 
 
+        tcc = new double[dist.getNumberOfPoints()];
+        tinfo = new double[dist.getNumberOfPoints()];
 
     }
 
@@ -326,6 +339,12 @@ public class Controller implements Initializable{
         data = FXCollections.observableArrayList();
         stepParameterTableView.setItems(data);
 
+        tcc = new double[dist.getNumberOfPoints()];
+        tinfo = new double[dist.getNumberOfPoints()];
+        allItemSeries = new ArrayList<>();
+        allItemInfoSeries = new ArrayList<XYChart.Series>();
+        allItemStdErrorSeries = new ArrayList<XYChart.Series>();
+        itemCount = 0;
     }
 
     @FXML
@@ -443,8 +462,7 @@ public class Controller implements Initializable{
 
         if(invalidCount == 0){
 
-            int count = defaultLineChart.getData().size();
-            ArrayList<XYChart.Series> allSeries = new ArrayList<XYChart.Series>();
+            ArrayList<XYChart.Series> categorySeries = new ArrayList<XYChart.Series>();
             XYChart.Series series = null;
             ItemResponseModel model = null;
 
@@ -458,22 +476,22 @@ public class Controller implements Initializable{
                 //add all series
                 for(int k=0;k<model.getNcat();k++){
                     series = new XYChart.Series();
-                    series.setName("cat"+k);
-                    allSeries.add(series);
+                    series.setName("Item " + (itemCount+1) + " Cat " + k);
+                    categorySeries.add(series);
+                    allItemSeries.add(series);
                 }
 
                 //compute probabilities
                 for(int i=0;i<dist.getNumberOfPoints();i++){
                     for(int k=0;k<model.getNcat();k++){
-                        allSeries.get(k).getData().add(
+                        categorySeries.get(k).getData().add(
                                 new XYChart.Data(dist.getPointAt(i),
                                 model.probability(dist.getPointAt(i), k)));
                     }
                 }
 
                 for(int k=0;k<model.getNcat();k++){
-                    defaultLineChart.getData().add(allSeries.get(k));
-
+                    defaultLineChart.getData().add(categorySeries.get(k));
                 }
 
 
@@ -493,22 +511,22 @@ public class Controller implements Initializable{
                 //add all series
                 for(int k=0;k<model.getNcat();k++){
                     series = new XYChart.Series();
-                    series.setName("cat"+k);
-                    allSeries.add(series);
+                    series.setName("Item " + (itemCount+1) + " Cat " + k);
+                    categorySeries.add(series);
+                    allItemSeries.add(series);
                 }
 
                 //compute probabilities
                 for(int i=0;i<dist.getNumberOfPoints();i++){
                     for(int k=0;k<model.getNcat();k++){
-                        allSeries.get(k).getData().add(
+                        categorySeries.get(k).getData().add(
                                 new XYChart.Data(dist.getPointAt(i),
                                         model.probability(dist.getPointAt(i), k)));
                     }
                 }
 
                 for(int k=0;k<model.getNcat();k++){
-                    defaultLineChart.getData().add(allSeries.get(k));
-
+                    defaultLineChart.getData().add(categorySeries.get(k));
                 }
 
             }else if(models[3].equals(selectedModel)){
@@ -520,65 +538,62 @@ public class Controller implements Initializable{
                 //add all series
                 for(int k=0;k<model.getNcat();k++){
                     series = new XYChart.Series();
-                    series.setName("cat"+k);
-                    allSeries.add(series);
+                    series.setName("Item " + (itemCount+1) + " Cat " + k);
+                    categorySeries.add(series);
+                    allItemSeries.add(series);
                 }
 
                 //compute probabilities
                 for(int i=0;i<dist.getNumberOfPoints();i++){
                     for(int k=0;k<model.getNcat();k++){
-                        allSeries.get(k).getData().add(
+                        categorySeries.get(k).getData().add(
                                 new XYChart.Data(dist.getPointAt(i),
                                         model.probability(dist.getPointAt(i), k)));
                     }
                 }
 
                 for(int k=0;k<model.getNcat();k++){
-                    defaultLineChart.getData().add(allSeries.get(k));
-
+                    defaultLineChart.getData().add(categorySeries.get(k));
                 }
-
 
 
             }else{
                 //binary item model
 
                 model = new Irm4PL(a, b, c, u, 1.0);
-//            model = new Irm3PL(a, b, c, 1.0);
 
                 series = new XYChart.Series();
-                series.setName("Item " + (count+1));
+                series.setName("Item " + (itemCount+1));
 
                 for(int i=0;i<dist.getNumberOfPoints();i++){
                     series.getData().add(new XYChart.Data(dist.getPointAt(i), model.probability(dist.getPointAt(i), 1)));
                 }
 
                 defaultLineChart.getData().add(series);
-
-                ObservableList<XYChart.Data<Number,Number>> newData = series.getData();
-                ObservableList<XYChart.Data<Number,Number>> tccData = tccSeries.getData();
-                ObservableList<XYChart.Data<Number,Number>> tInfoData = testInfoSeries.getData();
-                ObservableList<XYChart.Data<Number,Number>> stdErrorTestData = testStdErrorSeries.getData();
-
-                Number tccValue = 0;
-                Number testInfoValue = 0;
-                Number seTestValue = 0;
-                for(int i=0;i<newData.size();i++){
-                    tccValue = tccData.get(i).getYValue().doubleValue() + newData.get(i).getYValue().doubleValue();
-                    tccData.get(i).setYValue(tccValue);
-
-                    testInfoValue = tInfoData.get(i).getYValue().doubleValue() + model.itemInformationAt(dist.getPointAt(i));
-                    tInfoData.get(i).setYValue(testInfoValue);
-
-                    seTestValue = 1.0/Math.sqrt(testInfoValue.doubleValue());
-                    stdErrorTestData.get(i).setYValue(seTestValue);
-                }
+                allItemSeries.add(series);
 
             }
 
             defaultLineChart.setCreateSymbols(false);
 
+            XYChart.Series itemInfoSeries = new XYChart.Series();
+            itemInfoSeries.setName("Item Info " + (itemCount+1));
+            XYChart.Series itemStdErrorSeries = new XYChart.Series();
+            itemStdErrorSeries.setName("Item S.E. " + (itemCount+1));
 
+            for(int i=0;i<dist.getNumberOfPoints();i++){
+                tcc[i] = tcc[i]+model.expectedValue(dist.getPointAt(i));
+                tinfo[i] = tinfo[i]+model.itemInformationAt(dist.getPointAt(i));
+
+                itemInfoSeries.getData().add(new XYChart.Data(dist.getPointAt(i), model.itemInformationAt(dist.getPointAt(i))));
+                itemStdErrorSeries.getData().add(new XYChart.Data(dist.getPointAt(i), Math.sqrt(1/model.itemInformationAt(dist.getPointAt(i)))));
+            }
+
+            allItemInfoSeries.add(itemInfoSeries);
+            allItemStdErrorSeries.add(itemStdErrorSeries);
+
+            updateTestInformation();
+            updateTCC();
 
             //Reset text fields
             discriminationTextField.clear();
@@ -588,15 +603,25 @@ public class Controller implements Initializable{
             data = FXCollections.observableArrayList();
             stepParameterTableView.setItems(data);
 
-
+            itemCount++;
         }
 
+    }
+
+    private void updateTCC(){
+        ObservableList<XYChart.Data<Number,Number>> tccData = tccSeries.getData();
+        for(int i=0;i<dist.getNumberOfPoints();i++){
+            tccData.get(i).setYValue(tcc[i]);
+        }
     }
 
     @FXML
     private void handleTccSelected(){
         if(tccCheckBox.isSelected()){
             defaultLineChart.setAnimated(true);
+
+            updateTCC();
+
             defaultLineChart.getData().add(tccSeries);
             defaultYAxis.setLabel("Value");
         }else{
@@ -612,10 +637,19 @@ public class Controller implements Initializable{
         }
     }
 
+    private void updateTestInformation(){
+        ObservableList<XYChart.Data<Number,Number>> tInfoData = testInfoSeries.getData();
+        for(int i=0;i<dist.getNumberOfPoints();i++){
+            tInfoData.get(i).setYValue(tinfo[i]);
+        }
+    }
+
     @FXML
     private void handleTestInfoSelected(){
         if(testInfoCheckBox.isSelected()){
             defaultLineChart.setAnimated(true);
+            updateTestInformation();
+
             defaultLineChart.getData().add(testInfoSeries);
             defaultYAxis.setLabel("Value");
         }else{
@@ -635,6 +669,12 @@ public class Controller implements Initializable{
     private void handleStdErrorTest(){
         if(stdErrorTextCheckBox.isSelected()){
             defaultLineChart.setAnimated(true);
+
+            ObservableList<XYChart.Data<Number,Number>> tSEData = testStdErrorSeries.getData();
+            for(int i=0;i<dist.getNumberOfPoints();i++){
+                tSEData.get(i).setYValue(1/Math.sqrt(tinfo[i]));
+            }
+
             defaultLineChart.getData().add(testStdErrorSeries);
             defaultYAxis.setLabel("Value");
         }else{
@@ -721,6 +761,74 @@ public class Controller implements Initializable{
         alert.setContentText(aboutText);
         alert.show();
 
+    }
+
+    @FXML
+    private void handleShowICC(){
+        if(iccCheckBox.isSelected()){
+            defaultLineChart.setAnimated(true);
+
+            for(XYChart.Series s : allItemSeries){
+                defaultLineChart.getData().add(s);
+            }
+
+            if(!tccCheckBox.isSelected() || !stdErrorTextCheckBox.isSelected()){
+                defaultYAxis.setLabel("Probability");
+            }
+        }else{
+            for(int i=0;i<defaultLineChart.getData().size();i++){
+                for(XYChart.Series s : allItemSeries){
+                    defaultLineChart.getData().remove(s);
+                }
+            }
+            defaultYAxis.setLabel("Value");
+        }
+    }
+
+    @FXML
+    private void handleShowItemInfo(){
+        if(itemInfoCheckBox.isSelected()){
+            defaultLineChart.setAnimated(true);
+
+            for(XYChart.Series s : allItemInfoSeries){
+                defaultLineChart.getData().add(s);
+            }
+            defaultYAxis.setLabel("Value");
+        }else{
+            for(int i=0;i<defaultLineChart.getData().size();i++){
+                for(XYChart.Series s : allItemInfoSeries){
+                    defaultLineChart.getData().remove(s);
+                }
+            }
+            if(iccCheckBox.isSelected() && !(tccCheckBox.isSelected() || stdErrorTextCheckBox.isSelected())){
+                defaultYAxis.setLabel("Probability");
+            }else{
+                defaultYAxis.setLabel("Value");
+            }
+        }
+    }
+
+    @FXML
+    private void handleShowItemStdError(){
+        if(stdErrorItemCheckBox.isSelected()){
+            defaultLineChart.setAnimated(true);
+
+            for(XYChart.Series s : allItemStdErrorSeries){
+                defaultLineChart.getData().add(s);
+            }
+            defaultYAxis.setLabel("Value");
+        }else{
+            for(int i=0;i<defaultLineChart.getData().size();i++){
+                for(XYChart.Series s : allItemStdErrorSeries){
+                    defaultLineChart.getData().remove(s);
+                }
+            }
+            if(iccCheckBox.isSelected() && !(tccCheckBox.isSelected() || stdErrorTextCheckBox.isSelected())){
+                defaultYAxis.setLabel("Probability");
+            }else{
+                defaultYAxis.setLabel("Value");
+            }
+        }
     }
 
 }

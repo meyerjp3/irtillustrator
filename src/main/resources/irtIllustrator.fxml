@@ -135,17 +135,17 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" />
                      </VBox.margin>
                   </HBox>
-                  <CheckBox fx:id="iccCheckBox" mnemonicParsing="false" selected="true" text="Item characteristic curve">
+                  <CheckBox fx:id="iccCheckBox" mnemonicParsing="false" onAction="#handleShowICC" selected="true" text="Item characteristic curve">
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" />
                      </VBox.margin>
                   </CheckBox>
-                  <CheckBox fx:id="itemInfoCheckBox" mnemonicParsing="false" text="Item information">
+                  <CheckBox fx:id="itemInfoCheckBox" mnemonicParsing="false" onAction="#handleShowItemInfo" text="Item information">
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" />
                      </VBox.margin>
                   </CheckBox>
-                  <CheckBox fx:id="stdErrorItemCheckBox" layoutX="15.0" layoutY="495.0" mnemonicParsing="false" text="Standard error (Item)">
+                  <CheckBox fx:id="stdErrorItemCheckBox" layoutX="15.0" layoutY="495.0" mnemonicParsing="false" onAction="#handleShowItemStdError" text="Standard error (Item)">
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" />
                      </VBox.margin>
@@ -172,12 +172,12 @@
                   </CheckBox>
                   <HBox prefHeight="35.0" prefWidth="150.0">
                      <children>
-                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAddItem" text="Add">
+                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAddItem" text="Add Item">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="clearButton" mnemonicParsing="false" onAction="#handleClearChart" text="Clear">
+                        <Button fx:id="clearButton" mnemonicParsing="false" onAction="#handleClearChart" text="Clear Items">
                            <HBox.margin>
                               <Insets bottom="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
