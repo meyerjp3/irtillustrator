@@ -37,11 +37,6 @@
                   <MenuItem mnemonicParsing="false" text="Exit" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Preferences..." />
-            </items>
-          </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#handleAboutMenuSelection" text="About" />
@@ -69,7 +64,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <LineChart fx:id="defaultLineChart" horizontalZeroLineVisible="false" stylesheets="@LineChart.css" title="IRT Chart" verticalZeroLineVisible="false" GridPane.columnIndex="2" GridPane.columnSpan="5" GridPane.rowSpan="4">
+            <LineChart fx:id="defaultLineChart" horizontalZeroLineVisible="false" stylesheets="@LineChart.css" title="Title" verticalZeroLineVisible="false" GridPane.columnIndex="2" GridPane.columnSpan="5" GridPane.rowSpan="4">
               <xAxis>
                 <NumberAxis fx:id="defaultXAxis" label="Theta" lowerBound="-4.5" side="BOTTOM" upperBound="4.5" />
               </xAxis>
@@ -268,7 +263,7 @@
          <children>
             <Label prefWidth="450.0" text="Ready" />
             <Pane HBox.hgrow="ALWAYS" />
-            <ProgressBar prefWidth="200.0" progress="0.0" />
+            <ProgressBar prefWidth="200.0" progress="0.0" visible="false" />
          </children>
          <VBox.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" />

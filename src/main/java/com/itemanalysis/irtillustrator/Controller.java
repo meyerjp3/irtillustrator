@@ -164,6 +164,8 @@ public class Controller implements Initializable{
 
     private final String VERSION = "2017.1";
 
+    private final String BUILD_DATE = "September 7, 2017";
+
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
         modelChoiceBox.getItems().clear();
         modelChoiceBox.setItems(FXCollections.observableArrayList(models));
@@ -536,23 +538,23 @@ public class Controller implements Initializable{
                 model = new IrmGRM(a, steps, 1.0);
 
                 //add all series
-                for(int k=0;k<model.getNcat();k++){
+                for(int k=0;k<model.getNcat()-1;k++){
                     series = new XYChart.Series();
-                    series.setName("Item " + (itemCount+1) + " Cat " + k);
+                    series.setName("Item " + (itemCount+1) + " Cat " + (k+1));
                     categorySeries.add(series);
                     allItemSeries.add(series);
                 }
 
                 //compute probabilities
                 for(int i=0;i<dist.getNumberOfPoints();i++){
-                    for(int k=0;k<model.getNcat();k++){
+                    for(int k=0;k<model.getNcat()-1;k++){
                         categorySeries.get(k).getData().add(
                                 new XYChart.Data(dist.getPointAt(i),
-                                        model.probability(dist.getPointAt(i), k)));
+                                        model.cumulativeProbability(dist.getPointAt(i), k+1)));
                     }
                 }
 
-                for(int k=0;k<model.getNcat();k++){
+                for(int k=0;k<model.getNcat()-1;k++){
                     defaultLineChart.getData().add(categorySeries.get(k));
                 }
 
@@ -751,12 +753,14 @@ public class Controller implements Initializable{
     private void handleAboutMenuSelection(){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About");
-        alert.setHeaderText("About IRT Illustrator");
+        alert.setHeaderText("IRT Illustrator");
 
-        String aboutText = "IRT Illustrator version " + VERSION + "\n" +
+        String aboutText = "IRT Illustrator " + VERSION + "\n" +
+                "Built on " + BUILD_DATE + "\n" +
                 "Copyright (c) 2017 J. Patrick Meyer.\n" +
                 "All rights reserved.\n" +
-                "www.ItemAnalysis.com";
+                "www.ItemAnalysis.com\n\n" +
+                "Line chart icon made by Freepik from www.flaticon.com";
 
         alert.setContentText(aboutText);
         alert.show();
