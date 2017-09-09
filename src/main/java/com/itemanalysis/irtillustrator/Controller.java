@@ -760,7 +760,7 @@ public class Controller implements Initializable{
                 "Copyright (c) 2017 J. Patrick Meyer.\n" +
                 "All rights reserved.\n" +
                 "www.ItemAnalysis.com\n\n" +
-                "Line chart icon made by Freepik from www.flaticon.com";
+                "Icon made by Prosymbols from www.flaticon.com";
 
         alert.setContentText(aboutText);
         alert.show();
