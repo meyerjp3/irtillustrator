@@ -184,6 +184,7 @@ public class Controller implements Initializable{
                         addStepParameterTextField.setDisable(false);
                         stepAddButton.setDisable(false);
                         stepClearButton.setDisable(false);
+
                     }else if(models[2].equals(selectedModel) || models[3].equals(selectedModel)){
                         stepParameterTableView.setDisable(false);
                         discriminationTextField.setDisable(false);

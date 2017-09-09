@@ -112,15 +112,15 @@
                   </TableView>
                   <HBox prefHeight="25.0" prefWidth="150.0">
                      <children>
-                        <TextField fx:id="addStepParameterTextField" prefHeight="25.0" prefWidth="50.0" promptText="Step">
+                        <TextField fx:id="addStepParameterTextField" disable="true" prefHeight="25.0" prefWidth="50.0" promptText="Step">
                            <HBox.margin>
                               <Insets bottom="5.0" top="5.0" />
                            </HBox.margin></TextField>
-                        <Button fx:id="stepAddButton" mnemonicParsing="false" onAction="#handleAddStep" text="Add">
+                        <Button fx:id="stepAddButton" disable="true" mnemonicParsing="false" onAction="#handleAddStep" text="Add">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" top="5.0" />
                            </HBox.margin></Button>
-                        <Button fx:id="stepClearButton" mnemonicParsing="false" onAction="#handleClearStep" text="Clear">
+                        <Button fx:id="stepClearButton" disable="true" mnemonicParsing="false" onAction="#handleClearStep" text="Clear">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" top="5.0" />
                            </HBox.margin>
